@@ -13,6 +13,8 @@
       <root url="file://$USER_HOME$/Downloads/mysql-connector-j-9.3.0/mysql-connector-j-9.3.0/src/main/user-api/java" />
       <root url="file://$USER_HOME$/Downloads/mysql-connector-j-9.3.0/mysql-connector-j-9.3.0/src/main/user-impl/java" />
       <root url="file://$USER_HOME$/Downloads/mysql-connector-j-9.3.0/mysql-connector-j-9.3.0/src/test/java" />
+      <root url="file://$USER_HOME$/Downloads/JDatePicker-master/JDatePicker-master/src/main/java" />
+      <root url="file://$USER_HOME$/Downloads/JDatePicker-master/JDatePicker-master/src/test/java" />
     </SOURCES>
   </library>
 </component>
