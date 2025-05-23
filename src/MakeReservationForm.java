@@ -1,5 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -51,6 +54,28 @@ public class MakeReservationForm extends JFrame {
         add(panel);
     }
 
+    public static java.util.List<Reservation> loadReservationsFromDB() {
+        java.util.List<Reservation> reservations = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT guest_name, phone, room_type, check_in, check_out FROM reservations";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                reservations.add(new Reservation(
+                        rs.getString("guest_name"),
+                        rs.getString("phone"),
+                        rs.getString("room_type"),
+                        rs.getDate("check_in").toString(),
+                        rs.getDate("check_out").toString()
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return reservations;
+    }
+
+
     private void saveReservation() {
         String guest = guestNameField.getText();
         String phone = phoneField.getText();
@@ -68,14 +93,29 @@ public class MakeReservationForm extends JFrame {
             return;
         }
 
-        reservations.add(new Reservation(guest, phone, roomType, checkIn, checkOut));
-        JOptionPane.showMessageDialog(this, "Reservation saved successfully!");
+        // Save to DB
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "INSERT INTO reservations (guest_name, phone, room_type, check_in, check_out) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, guest);
+            ps.setString(2, phone);
+            ps.setString(3, roomType);
+            ps.setDate(4, java.sql.Date.valueOf(checkIn));
+            ps.setDate(5, java.sql.Date.valueOf(checkOut));
+            ps.executeUpdate();
 
-        guestNameField.setText("");
-        phoneField.setText("");
-        checkInPicker.getJFormattedTextField().setText("");
-        checkOutPicker.getJFormattedTextField().setText("");
+            JOptionPane.showMessageDialog(this, "Reservation saved successfully!");
+
+            // Clear fields
+            guestNameField.setText("");
+            phoneField.setText("");
+            checkInPicker.getJFormattedTextField().setText("");
+            checkOutPicker.getJFormattedTextField().setText("");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error saving reservation: " + ex.getMessage());
+        }
     }
+
 
     private JDatePickerImpl createDatePicker() {
         UtilDateModel model = new UtilDateModel();

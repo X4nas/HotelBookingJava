@@ -34,7 +34,12 @@ public class AdminDashboard extends JFrame {
         panel.add(logoutBtn);
 
         // Add listeners
-        viewReservationsBtn.addActionListener(e -> new ViewReservationsWindow(MakeReservationForm.getReservations()).setVisible(true));
+        viewReservationsBtn.addActionListener(e -> {
+            // Load reservations from DB dynamically
+            java.util.List<Reservation> reservationsFromDB = MakeReservationForm.loadReservationsFromDB();
+            new ViewReservationsWindow(reservationsFromDB).setVisible(true);
+        });
+
         manageRoomsBtn.addActionListener(e -> new ManageRoomsWindow().setVisible(true));
         manageUsersBtn.addActionListener(e -> new ManageUsersWindow().setVisible(true));
         addReservationBtn.addActionListener(e -> new MakeReservationForm("Admin").setVisible(true));
