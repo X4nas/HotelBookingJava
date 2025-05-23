@@ -48,6 +48,12 @@ public class AdminDashboard extends JFrame {
             new LoginWindow().setVisible(true); // Return to login
         });
 
+        addReservationBtn.addActionListener(e -> {
+            MakeReservationForm reservationForm = new MakeReservationForm("Admin");
+            reservationForm.setVisible(true);
+        });
+
+
         add(panel);
     }
 

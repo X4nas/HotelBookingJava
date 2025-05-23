@@ -2,33 +2,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-
-class Reservation {
-    String guestName, phone, roomType, checkIn, checkOut;
-
-    public Reservation(String guestName, String phone, String roomType, String checkIn, String checkOut) {
-        this.guestName = guestName;
-        this.phone = phone;
-        this.roomType = roomType;
-        this.checkIn = checkIn;
-        this.checkOut = checkOut;
-    }
-
-    public String toString() {
-        return "Guest: " + guestName + ", Phone: " + phone + ", Room Type: " + roomType + ", Check-In: " + checkIn + ", Check-Out: " + checkOut;
-    }
-}
+import java.util.List;
+import java.util.Properties;
+import org.jdatepicker.impl.*;
 
 public class MakeReservationForm extends JFrame {
 
-    private JTextField guestNameField, phoneField, checkInField, checkOutField;
+    private JTextField guestNameField, phoneField;
     private JComboBox<String> roomTypeBox;
     private JButton saveButton;
-    private static java.util.List<Reservation> reservations = new ArrayList<>();
+    private static List<Reservation> reservations = new ArrayList<>();
+    private JDatePickerImpl checkInPicker, checkOutPicker;
 
     public MakeReservationForm(String userRole) {
         setTitle(userRole + " - Make Reservation");
-        setSize(400, 400);
+        setSize(450, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -39,7 +27,7 @@ public class MakeReservationForm extends JFrame {
         guestNameField = new JTextField();
         panel.add(guestNameField);
 
-        panel.add(new JLabel("Phone:"));
+        panel.add(new JLabel("Phone (10 digits):"));
         phoneField = new JTextField();
         panel.add(phoneField);
 
@@ -47,19 +35,17 @@ public class MakeReservationForm extends JFrame {
         roomTypeBox = new JComboBox<>(new String[]{"Single", "Double", "Deluxe"});
         panel.add(roomTypeBox);
 
-        panel.add(new JLabel("Check-in Date (yyyy-mm-dd):"));
-        checkInField = new JTextField();
-        panel.add(checkInField);
+        panel.add(new JLabel("Check-in Date:"));
+        checkInPicker = createDatePicker();
+        panel.add(checkInPicker);
 
-        panel.add(new JLabel("Check-out Date (yyyy-mm-dd):"));
-        checkOutField = new JTextField();
-        panel.add(checkOutField);
+        panel.add(new JLabel("Check-out Date:"));
+        checkOutPicker = createDatePicker();
+        panel.add(checkOutPicker);
 
         saveButton = new JButton("Save Reservation");
         panel.add(saveButton);
-
-        // Empty cell for layout
-        panel.add(new JLabel(""));
+        panel.add(new JLabel("")); // filler
 
         saveButton.addActionListener(e -> saveReservation());
 
@@ -70,27 +56,38 @@ public class MakeReservationForm extends JFrame {
         String guest = guestNameField.getText();
         String phone = phoneField.getText();
         String roomType = (String) roomTypeBox.getSelectedItem();
-        String checkIn = checkInField.getText();
-        String checkOut = checkOutField.getText();
+        String checkIn = checkInPicker.getJFormattedTextField().getText();
+        String checkOut = checkOutPicker.getJFormattedTextField().getText();
 
         if (guest.isEmpty() || phone.isEmpty() || checkIn.isEmpty() || checkOut.isEmpty()) {
             JOptionPane.showMessageDialog(this, "All fields are required.");
             return;
         }
 
-        Reservation res = new Reservation(guest, phone, roomType, checkIn, checkOut);
-        reservations.add(res);
+        if (!phone.matches("\\d{10}")) {
+            JOptionPane.showMessageDialog(this, "Phone number must be 10 digits.");
+            return;
+        }
 
+        reservations.add(new Reservation(guest, phone, roomType, checkIn, checkOut));
         JOptionPane.showMessageDialog(this, "Reservation saved successfully!");
 
-        // Reset fields
         guestNameField.setText("");
         phoneField.setText("");
-        checkInField.setText("");
-        checkOutField.setText("");
+        checkInPicker.getJFormattedTextField().setText("");
+        checkOutPicker.getJFormattedTextField().setText("");
     }
 
-    // Optional: test this form directly
+    private JDatePickerImpl createDatePicker() {
+        UtilDateModel model = new UtilDateModel();
+        Properties p = new Properties();
+        p.put("text.today", "Today");
+        p.put("text.month", "Month");
+        p.put("text.year", "Year");
+        JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+        return new JDatePickerImpl(datePanel, new DateLabelFormatter());
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new MakeReservationForm("Admin").setVisible(true));
     }
