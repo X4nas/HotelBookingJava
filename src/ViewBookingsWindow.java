@@ -10,11 +10,11 @@ public class ViewBookingsWindow extends JFrame {
 
     public ViewBookingsWindow(String username) {
         this.username = username;
-
         setTitle("My Bookings - " + username);
-        setSize(700, 400);
+        setSize(500, 350);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        add(new JLabel("User bookings will be displayed here.", SwingConstants.CENTER));
 
         String[] columns = {"Reservation ID", "Room Number", "Guest Name", "Phone", "Check-In", "Check-Out"};
         tableModel = new DefaultTableModel(columns, 0);

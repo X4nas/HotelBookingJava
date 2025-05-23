@@ -10,10 +10,11 @@ public class LoginWindow extends JFrame {
     private JComboBox<String> userTypeCombo;
 
     public LoginWindow() {
-        setTitle("Hotel Booking - Login");
-        setSize(400, 300);
+        setTitle("Login");
+        setSize(300, 300);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Center the window
+        add(new JLabel("Login form here.", SwingConstants.CENTER)); // Center the window
 
         // Panel setup
         JPanel panel = new JPanel();

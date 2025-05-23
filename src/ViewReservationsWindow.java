@@ -1,26 +1,48 @@
 import javax.swing.*;
-import java.util.List;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.sql.*;
 
 public class ViewReservationsWindow extends JFrame {
-    public ViewReservationsWindow(List<Reservation> reservations) {
+    private DefaultTableModel tableModel;
+    private JTable reservationsTable;
+
+    public ViewReservationsWindow() {
         setTitle("All Reservations");
-        setSize(600, 400);
+        setSize(700, 400);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        String[] columnNames = {"Guest Name", "Phone", "Room Type", "Check-In", "Check-Out"};
-        String[][] data = new String[reservations.size()][5];
+        String[] columns = {"Reservation ID", "Room No", "Guest Name", "Phone", "Check-In", "Check-Out"};
+        tableModel = new DefaultTableModel(columns, 0);
+        reservationsTable = new JTable(tableModel);
 
-        for (int i = 0; i < reservations.size(); i++) {
-            Reservation r = reservations.get(i);
-            data[i][0] = r.guestName;
-            data[i][1] = r.phone;
-            data[i][2] = r.roomType;
-            data[i][3] = r.checkIn;
-            data[i][4] = r.checkOut;
+        add(new JScrollPane(reservationsTable), BorderLayout.CENTER);
+
+        loadReservationsFromDB();
+    }
+
+    private void loadReservationsFromDB() {
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT reservation_id, room_number, guest_name, phone, check_in_date, check_out_date FROM reservations")) {
+
+            tableModel.setRowCount(0);
+
+            while (rs.next()) {
+                Object[] row = {
+                        rs.getInt("reservation_id"),
+                        rs.getInt("room_number"),
+                        rs.getString("guest_name"),
+                        rs.getString("phone"),
+                        rs.getDate("check_in_date").toString(),
+                        rs.getDate("check_out_date").toString()
+                };
+                tableModel.addRow(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading reservations from database.");
         }
-
-        JTable table = new JTable(data, columnNames);
-        JScrollPane scrollPane = new JScrollPane(table);
-        add(scrollPane);
     }
 }

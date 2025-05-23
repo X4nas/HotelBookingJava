@@ -35,24 +35,25 @@ public class AdminDashboard extends JFrame {
 
         // Add listeners
         viewReservationsBtn.addActionListener(e -> {
-            // Load reservations from DB dynamically
-            java.util.List<Reservation> reservationsFromDB = MakeReservationForm.loadReservationsFromDB();
-            new ViewReservationsWindow(reservationsFromDB).setVisible(true);
+            new ViewReservationsWindow().setVisible(true);
         });
 
         manageRoomsBtn.addActionListener(e -> new ManageRoomsWindow().setVisible(true));
         manageUsersBtn.addActionListener(e -> new ManageUsersWindow().setVisible(true));
-        addReservationBtn.addActionListener(e -> new MakeReservationForm("Admin").setVisible(true));
+
+        // Use adminUsername here (not username)
+        addReservationBtn.addActionListener(e -> new MakeReservationForm(adminUsername).setVisible(true));
+
         logoutBtn.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Logged out.");
-            dispose(); // Close this window
-            new LoginWindow().setVisible(true); // Return to login
+            dispose();
+            new LoginWindow().setVisible(true);
         });
 
         add(panel);
     }
 
-    // Test independently
+    // Test the AdminDashboard standalone
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new AdminDashboard("admin").setVisible(true);
