@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class UserDashboard extends JFrame {
 
@@ -10,48 +9,44 @@ public class UserDashboard extends JFrame {
         this.username = username;
 
         setTitle("User Dashboard - " + username);
-        setSize(400, 350);
+        setSize(400, 320);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        JPanel panel = new JPanel(new GridLayout(5, 1, 15, 15));
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
         JLabel welcomeLabel = new JLabel("Welcome, " + username + "!");
         welcomeLabel.setHorizontalAlignment(JLabel.CENTER);
-        panel.add(welcomeLabel);
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 16));
 
         JButton viewRoomsBtn = new JButton("View Available Rooms");
         JButton makeReservationBtn = new JButton("Make a Reservation");
         JButton viewBookingsBtn = new JButton("View My Bookings");
-        JButton extendStayBtn = new JButton("Extend Stay");
         JButton logoutBtn = new JButton("Logout");
 
-        // Add buttons to panel
+        // Add listeners
+        viewRoomsBtn.addActionListener(e -> new ViewAvailableRooms().setVisible(true));
+        makeReservationBtn.addActionListener(e -> new MakeReservationForm(username).setVisible(true));
+        viewBookingsBtn.addActionListener(e -> new ViewBookingsWindow(username).setVisible(true));
+        logoutBtn.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "Logged out.");
+            dispose();
+            new LoginWindow().setVisible(true);
+        });
+
+        // Add components
+        panel.add(welcomeLabel);
         panel.add(viewRoomsBtn);
         panel.add(makeReservationBtn);
         panel.add(viewBookingsBtn);
-        panel.add(extendStayBtn);
         panel.add(logoutBtn);
-
-        // Add listeners
-        viewRoomsBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Rooms listing coming soon!"));
-        makeReservationBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Reservation form coming soon!"));
-        viewBookingsBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Your bookings will be shown here."));
-        extendStayBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Stay extension feature coming soon!"));
-        logoutBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Logged out.");
-            dispose(); // Close this window
-            new LoginWindow().setVisible(true); // Go back to login
-        });
 
         add(panel);
     }
 
     // Test the dashboard independently
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new UserDashboard("TestUser").setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new UserDashboard("TestUser").setVisible(true));
     }
 }
