@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;  // Import java.util.List here
 
 public class UserDashboard extends JFrame {
 
@@ -28,11 +29,25 @@ public class UserDashboard extends JFrame {
         // Add listeners
         viewRoomsBtn.addActionListener(e -> new ViewAvailableRooms().setVisible(true));
         makeReservationBtn.addActionListener(e -> new MakeReservationForm(userPhone).setVisible(true));
-        viewBookingsBtn.addActionListener(e -> new MyBookingsForm(userPhone).setVisible(true));
         logoutBtn.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Logged out.");
             dispose();
             new LoginWindow().setVisible(true);
+        });
+
+        // Single listener for viewBookingsBtn
+        viewBookingsBtn.addActionListener(e -> {
+            List<Reservation> bookings = Reservation.getReservationsByPhone(userPhone);
+            if (bookings == null || bookings.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No bookings found for phone: " + userPhone);
+            } else {
+                // If your ViewBookingsWindow only accepts phone String, just:
+                new ViewBookingsWindow(userPhone).setVisible(true);
+
+                // OR if you want to pass bookings directly,
+                // you must create a constructor that accepts List<Reservation> in ViewBookingsWindow
+                // new ViewBookingsWindow(bookings).setVisible(true);
+            }
         });
 
         // Add components

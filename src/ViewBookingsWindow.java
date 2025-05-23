@@ -4,21 +4,22 @@ import java.awt.*;
 import java.sql.*;
 
 public class ViewBookingsWindow extends JFrame {
-    private String username;
+    private String userIdentifier;  // phone or guest_name
     private JTable bookingsTable;
     private DefaultTableModel tableModel;
 
-    public ViewBookingsWindow(String username) {
-        this.username = username;
-        setTitle("My Bookings - " + username);
-        setSize(500, 350);
+    public ViewBookingsWindow(String userIdentifier) {
+        this.userIdentifier = userIdentifier;
+        setTitle("My Bookings - " + userIdentifier);
+        setSize(600, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        add(new JLabel("User bookings will be displayed here.", SwingConstants.CENTER));
+        setLayout(new BorderLayout());
 
         String[] columns = {"Reservation ID", "Room Number", "Guest Name", "Phone", "Check-In", "Check-Out"};
         tableModel = new DefaultTableModel(columns, 0);
         bookingsTable = new JTable(tableModel);
+        bookingsTable.setFillsViewportHeight(true);
 
         add(new JScrollPane(bookingsTable), BorderLayout.CENTER);
 
@@ -31,8 +32,8 @@ public class ViewBookingsWindow extends JFrame {
                      "SELECT reservation_id, room_number, guest_name, phone, check_in, check_out " +
                              "FROM reservations WHERE guest_name = ? OR phone = ?")) {
 
-            ps.setString(1, username);
-            ps.setString(2, username);
+            ps.setString(1, userIdentifier);
+            ps.setString(2, userIdentifier);
 
             try (ResultSet rs = ps.executeQuery()) {
                 tableModel.setRowCount(0); // clear previous
@@ -42,8 +43,8 @@ public class ViewBookingsWindow extends JFrame {
                     int roomNum = rs.getInt("room_number");
                     String guestName = rs.getString("guest_name");
                     String phone = rs.getString("phone");
-                    Date checkIn = rs.getDate("check_in");
-                    Date checkOut = rs.getDate("check_out");
+                    Timestamp checkIn = rs.getTimestamp("check_in");
+                    Timestamp checkOut = rs.getTimestamp("check_out");
 
                     tableModel.addRow(new Object[]{resId, roomNum, guestName, phone, checkIn, checkOut});
                 }
@@ -53,7 +54,8 @@ public class ViewBookingsWindow extends JFrame {
         }
     }
 
+    // For quick test
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ViewBookingsWindow("TestUser").setVisible(true));
+        SwingUtilities.invokeLater(() -> new ViewBookingsWindow("1234567890").setVisible(true));
     }
 }

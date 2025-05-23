@@ -57,15 +57,12 @@ public class LoginWindow extends JFrame {
         String password = new String(passwordField.getPassword());
         String userType = (String) userTypeCombo.getSelectedItem();
 
-        // Stub for actual validation
-        // proceed to admin dashboard
         if (username.equals("admin") && password.equals("admin") && userType.equals("Admin")) {
             JOptionPane.showMessageDialog(this, "Admin Login Successful!");
             this.dispose(); // close login window
             new AdminDashboard(username).setVisible(true);
         }
-        // proceed to the user dashboard
-        if (username.equals("user") && password.equals("user") && userType.equals("User")) {
+        else if (username.equals("user") && password.equals("user") && userType.equals("User")) {
             JOptionPane.showMessageDialog(this, "User Login Successful!");
             this.dispose(); // close login window
             new UserDashboard(username).setVisible(true);
@@ -74,6 +71,7 @@ public class LoginWindow extends JFrame {
             JOptionPane.showMessageDialog(this, "Invalid Credentials!");
         }
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

@@ -160,7 +160,7 @@ public class MakeReservationForm extends JFrame {
             }
 
             // Insert reservation
-            String insertSql = "INSERT INTO reservations (room_number, guest_name, phone, check_in_date, check_out_date) VALUES (?, ?, ?, ?, ?)";
+            String insertSql = "INSERT INTO reservations (room_number, guest_name, phone, check_in, check_out) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement insertStmt = conn.prepareStatement(insertSql);
             insertStmt.setInt(1, roomNumber);
             insertStmt.setString(2, guestName);
