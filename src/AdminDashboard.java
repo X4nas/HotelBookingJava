@@ -41,7 +41,7 @@ public class AdminDashboard extends JFrame {
         manageRoomsBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Room management window coming soon."));
         manageUsersBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "User management interface coming soon."));
         addBookingBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Manual booking form coming soon."));
-        addReservationBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Admin reservation form coming soon."));
+        addReservationBtn.addActionListener(e -> new MakeReservationForm("Admin").setVisible(true));
         logoutBtn.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Logged out.");
             dispose(); // Close this window

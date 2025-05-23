@@ -10,7 +10,6 @@ public class Reservation {
     }
 
     public String toString() {
-        return "Guest: " + guestName + ", Phone: " + phone + ", Room: " + roomType +
-                ", Check-In: " + checkIn + ", Check-Out: " + checkOut;
+        return "Guest: " + guestName + ", Phone: " + phone + ", Room Type: " + roomType + ", Check-In: " + checkIn + ", Check-Out: " + checkOut;
     }
 }

@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -45,7 +44,7 @@ public class MakeReservationForm extends JFrame {
 
         saveButton = new JButton("Save Reservation");
         panel.add(saveButton);
-        panel.add(new JLabel("")); // filler
+        panel.add(new JLabel("")); // Empty cell
 
         saveButton.addActionListener(e -> saveReservation());
 
@@ -88,7 +87,7 @@ public class MakeReservationForm extends JFrame {
         return new JDatePickerImpl(datePanel, new DateLabelFormatter());
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MakeReservationForm("Admin").setVisible(true));
+    public static List<Reservation> getReservations() {
+        return reservations;
     }
 }
