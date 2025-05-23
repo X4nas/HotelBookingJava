@@ -60,7 +60,8 @@ public class LoginWindow extends JFrame {
         // proceed to admin dashboard
         if (username.equals("admin") && password.equals("admin") && userType.equals("Admin")) {
             JOptionPane.showMessageDialog(this, "Admin Login Successful!");
-
+            this.dispose(); // close login window
+            new AdminDashboard(username).setVisible(true);
         }
         // proceed to the user dashboard
         if (username.equals("user") && password.equals("user") && userType.equals("User")) {
