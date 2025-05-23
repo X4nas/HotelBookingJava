@@ -1,5 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class LoginWindow extends JFrame {
     private JTextField usernameField;
@@ -46,22 +50,37 @@ public class LoginWindow extends JFrame {
     private void handleLogin() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
-        String userType = (String) userTypeCombo.getSelectedItem();
+        String role = (String) userTypeCombo.getSelectedItem();  // "Admin" or "User"
 
-        if (username.equals("admin") && password.equals("admin") && userType.equals("Admin")) {
-            JOptionPane.showMessageDialog(this, "Admin Login Successful!");
-            this.dispose();
-            new AdminDashboard(username).setVisible(true);
-        }
-        else if (username.equals("user") && password.equals("user") && userType.equals("User")) {
-            JOptionPane.showMessageDialog(this, "User Login Successful!");
-            this.dispose();
-            new UserDashboard(username).setVisible(true);
-        }
-        else {
-            JOptionPane.showMessageDialog(this, "Invalid Credentials!");
+        String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND role = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, role);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    JOptionPane.showMessageDialog(this, role + " Login Successful!");
+                    this.dispose();
+
+                    if ("Admin".equalsIgnoreCase(role)) {
+                        new AdminDashboard(username).setVisible(true);
+                    } else {
+                        new UserDashboard(username).setVisible(true);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Invalid Credentials!");
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
         }
     }
+
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginWindow().setVisible(true));

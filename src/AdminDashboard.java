@@ -50,6 +50,7 @@ public class AdminDashboard extends JFrame {
             new LoginWindow().setVisible(true);
         });
 
+
         add(panel);
     }
 
