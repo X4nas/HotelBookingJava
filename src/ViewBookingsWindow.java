@@ -28,8 +28,8 @@ public class ViewBookingsWindow extends JFrame {
     private void loadUserBookings() {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "SELECT reservation_id, room_number, guest_name, phone_number, check_in_date, check_out_date " +
-                             "FROM reservations WHERE guest_name = ? OR phone_number = ?")) {
+                     "SELECT reservation_id, room_number, guest_name, phone, check_in, check_out " +
+                             "FROM reservations WHERE guest_name = ? OR phone = ?")) {
 
             ps.setString(1, username);
             ps.setString(2, username);
@@ -41,9 +41,9 @@ public class ViewBookingsWindow extends JFrame {
                     int resId = rs.getInt("reservation_id");
                     int roomNum = rs.getInt("room_number");
                     String guestName = rs.getString("guest_name");
-                    String phone = rs.getString("phone_number");
-                    Date checkIn = rs.getDate("check_in_date");
-                    Date checkOut = rs.getDate("check_out_date");
+                    String phone = rs.getString("phone");
+                    Date checkIn = rs.getDate("check_in");
+                    Date checkOut = rs.getDate("check_out");
 
                     tableModel.addRow(new Object[]{resId, roomNum, guestName, phone, checkIn, checkOut});
                 }

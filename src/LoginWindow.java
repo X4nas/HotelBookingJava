@@ -11,7 +11,7 @@ public class LoginWindow extends JFrame {
 
     public LoginWindow() {
         setTitle("Login");
-        setSize(300, 300);
+        setSize(350, 280);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         add(new JLabel("Login form here.", SwingConstants.CENTER)); // Center the window

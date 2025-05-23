@@ -25,7 +25,9 @@ public class ViewReservationsWindow extends JFrame {
     private void loadReservationsFromDB() {
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT reservation_id, room_number, guest_name, phone, check_in_date, check_out_date FROM reservations")) {
+             ResultSet rs = stmt.executeQuery(
+                     "SELECT reservation_id, room_number, guest_name, phone, check_in, check_out FROM reservations"
+             )) {
 
             tableModel.setRowCount(0);
 
@@ -35,14 +37,14 @@ public class ViewReservationsWindow extends JFrame {
                         rs.getInt("room_number"),
                         rs.getString("guest_name"),
                         rs.getString("phone"),
-                        rs.getDate("check_in_date").toString(),
-                        rs.getDate("check_out_date").toString()
+                        rs.getTimestamp("check_in").toString(),
+                        rs.getTimestamp("check_out").toString()
                 };
                 tableModel.addRow(row);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading reservations from database.");
+            JOptionPane.showMessageDialog(this, "Error loading reservations: " + e.getMessage());
         }
     }
 }
