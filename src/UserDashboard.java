@@ -3,12 +3,12 @@ import java.awt.*;
 
 public class UserDashboard extends JFrame {
 
-    private String username;
+    private String userPhone; // Use phone for bookings lookup
 
-    public UserDashboard(String username) {
-        this.username = username;
+    public UserDashboard(String userPhone) {
+        this.userPhone = userPhone;
 
-        setTitle("User Dashboard - " + username);
+        setTitle("User Dashboard - " + userPhone);
         setSize(400, 320);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -16,7 +16,7 @@ public class UserDashboard extends JFrame {
         JPanel panel = new JPanel(new GridLayout(5, 1, 15, 15));
         panel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
-        JLabel welcomeLabel = new JLabel("Welcome, " + username + "!");
+        JLabel welcomeLabel = new JLabel("Welcome, " + userPhone + "!");
         welcomeLabel.setHorizontalAlignment(JLabel.CENTER);
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 16));
 
@@ -27,8 +27,8 @@ public class UserDashboard extends JFrame {
 
         // Add listeners
         viewRoomsBtn.addActionListener(e -> new ViewAvailableRooms().setVisible(true));
-        makeReservationBtn.addActionListener(e -> new MakeReservationForm(username).setVisible(true));
-        viewBookingsBtn.addActionListener(e -> new ViewBookingsWindow(username).setVisible(true));
+        makeReservationBtn.addActionListener(e -> new MakeReservationForm(userPhone).setVisible(true));
+        viewBookingsBtn.addActionListener(e -> new MyBookingsForm(userPhone).setVisible(true));
         logoutBtn.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Logged out.");
             dispose();
@@ -45,8 +45,8 @@ public class UserDashboard extends JFrame {
         add(panel);
     }
 
-    // Test the dashboard independently
+    // For testing independently
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new UserDashboard("TestUser").setVisible(true));
+        SwingUtilities.invokeLater(() -> new UserDashboard("1234567890").setVisible(true));  // example phone number
     }
 }

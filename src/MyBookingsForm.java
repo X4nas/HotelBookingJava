@@ -4,6 +4,7 @@ import java.awt.*;
 import java.sql.*;
 
 public class MyBookingsForm extends JFrame {
+
     public MyBookingsForm(String userPhone) {
         setTitle("My Bookings");
         setSize(800, 400);
@@ -18,7 +19,7 @@ public class MyBookingsForm extends JFrame {
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT reservation_id, room_number, guest_name, phone, check_in, check_out FROM reservations WHERE phone = ?"
+                     "SELECT reservation_id, room_number, guest_name, phone, checkin_date AS check_in, checkout_date AS check_out FROM reservations WHERE phone = ?"
              )) {
 
             stmt.setString(1, userPhone);
@@ -29,8 +30,8 @@ public class MyBookingsForm extends JFrame {
                 int room = rs.getInt("room_number");
                 String name = rs.getString("guest_name");
                 String phone = rs.getString("phone");
-                Timestamp checkIn = rs.getTimestamp("check_in");
-                Timestamp checkOut = rs.getTimestamp("check_out");
+                Date checkIn = rs.getDate("check_in");
+                Date checkOut = rs.getDate("check_out");
 
                 model.addRow(new Object[]{id, room, name, phone, checkIn, checkOut});
             }
