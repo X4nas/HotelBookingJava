@@ -3,17 +3,24 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/hotel_booking?useSSL=false&serverTimezone=UTC";
-    private static final String USER = "root"; // your DB username
-    private static final String PASSWORD = "your_password"; // your DB password
-
     public static Connection getConnection() throws SQLException {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");  // Load MySQL driver
+            Class.forName("com.mysql.cj.jdbc.Driver"); // load the driver
+            return DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/hotel_booking", "root", "1234"
+            );
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
             throw new SQLException("MySQL JDBC Driver not found.");
         }
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+
+    // Test main method
+    public static void main(String[] args) {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Driver loaded successfully!");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Driver not found.");
+        }
     }
 }
