@@ -1,133 +1,128 @@
 import javax.swing.*;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import org.jdatepicker.impl.*;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 public class MakeReservationForm extends JFrame {
+    private JComboBox<Integer> roomComboBox;
+    private JTextField nameField, phoneField;
+    private JTextField checkInField, checkOutField;  // Format: yyyy-MM-dd
 
-    private JTextField guestNameField, phoneField;
-    private JComboBox<String> roomTypeBox;
-    private JButton saveButton;
-    private static List<Reservation> reservations = new ArrayList<>();
-    private JDatePickerImpl checkInPicker, checkOutPicker;
-
-    public MakeReservationForm(String userRole) {
-        setTitle(userRole + " - Make Reservation");
-        setSize(450, 400);
+    public MakeReservationForm() {
+        setTitle("Make a Reservation");
+        setSize(400, 350);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
-        panel.add(new JLabel("Guest Name:"));
-        guestNameField = new JTextField();
-        panel.add(guestNameField);
+        panel.add(new JLabel("Select Room Number:"));
+        roomComboBox = new JComboBox<>();
+        loadAvailableRooms();
+        panel.add(roomComboBox);
 
-        panel.add(new JLabel("Phone (10 digits):"));
+        panel.add(new JLabel("Your Name:"));
+        nameField = new JTextField();
+        panel.add(nameField);
+
+        panel.add(new JLabel("Phone Number:"));
         phoneField = new JTextField();
         panel.add(phoneField);
 
-        panel.add(new JLabel("Room Type:"));
-        roomTypeBox = new JComboBox<>(new String[]{"Single", "Double", "Deluxe"});
-        panel.add(roomTypeBox);
+        panel.add(new JLabel("Check-In Date (yyyy-MM-dd):"));
+        checkInField = new JTextField();
+        panel.add(checkInField);
 
-        panel.add(new JLabel("Check-in Date:"));
-        checkInPicker = createDatePicker();
-        panel.add(checkInPicker);
+        panel.add(new JLabel("Check-Out Date (yyyy-MM-dd):"));
+        checkOutField = new JTextField();
+        panel.add(checkOutField);
 
-        panel.add(new JLabel("Check-out Date:"));
-        checkOutPicker = createDatePicker();
-        panel.add(checkOutPicker);
-
-        saveButton = new JButton("Save Reservation");
-        panel.add(saveButton);
-        panel.add(new JLabel("")); // Empty cell
-
-        saveButton.addActionListener(e -> saveReservation());
+        JButton reserveBtn = new JButton("Reserve");
+        reserveBtn.addActionListener(e -> makeReservation());
+        panel.add(reserveBtn);
 
         add(panel);
     }
 
-    public static java.util.List<Reservation> loadReservationsFromDB() {
-        java.util.List<Reservation> reservations = new ArrayList<>();
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT guest_name, phone, room_type, check_in, check_out FROM reservations";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
+    private void loadAvailableRooms() {
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT room_number FROM rooms WHERE status = 'Available'")) {
+
+            roomComboBox.removeAllItems();
             while (rs.next()) {
-                reservations.add(new Reservation(
-                        rs.getString("guest_name"),
-                        rs.getString("phone"),
-                        rs.getString("room_type"),
-                        rs.getDate("check_in").toString(),
-                        rs.getDate("check_out").toString()
-                ));
+                roomComboBox.addItem(rs.getInt("room_number"));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading available rooms: " + e.getMessage());
         }
-        return reservations;
     }
 
+    private void makeReservation() {
+        if (roomComboBox.getItemCount() == 0) {
+            JOptionPane.showMessageDialog(this, "No rooms available for reservation.");
+            return;
+        }
 
-    private void saveReservation() {
-        String guest = guestNameField.getText();
-        String phone = phoneField.getText();
-        String roomType = (String) roomTypeBox.getSelectedItem();
-        String checkIn = checkInPicker.getJFormattedTextField().getText();
-        String checkOut = checkOutPicker.getJFormattedTextField().getText();
+        int roomNumber = (Integer) roomComboBox.getSelectedItem();
+        String name = nameField.getText().trim();
+        String phone = phoneField.getText().trim();
+        String checkIn = checkInField.getText().trim();
+        String checkOut = checkOutField.getText().trim();
 
-        if (guest.isEmpty() || phone.isEmpty() || checkIn.isEmpty() || checkOut.isEmpty()) {
+        // Validate inputs
+        if (name.isEmpty() || phone.isEmpty() || checkIn.isEmpty() || checkOut.isEmpty()) {
             JOptionPane.showMessageDialog(this, "All fields are required.");
             return;
         }
 
-        if (!phone.matches("\\d{10}")) {
-            JOptionPane.showMessageDialog(this, "Phone number must be 10 digits.");
+        try {
+            LocalDate checkInDate = LocalDate.parse(checkIn);
+            LocalDate checkOutDate = LocalDate.parse(checkOut);
+
+            if (checkOutDate.isBefore(checkInDate)) {
+                JOptionPane.showMessageDialog(this, "Check-Out date must be after Check-In date.");
+                return;
+            }
+        } catch (DateTimeParseException ex) {
+            JOptionPane.showMessageDialog(this, "Please enter dates in yyyy-MM-dd format.");
             return;
         }
 
-        // Save to DB
+        // Insert reservation and update room status
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "INSERT INTO reservations (guest_name, phone, room_type, check_in, check_out) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setString(1, guest);
-            ps.setString(2, phone);
-            ps.setString(3, roomType);
-            ps.setDate(4, java.sql.Date.valueOf(checkIn));
-            ps.setDate(5, java.sql.Date.valueOf(checkOut));
-            ps.executeUpdate();
+            conn.setAutoCommit(false);
 
-            JOptionPane.showMessageDialog(this, "Reservation saved successfully!");
+            // Insert into reservations
+            String insertSQL = "INSERT INTO reservations (room_number, guest_name, phone_number, check_in_date, check_out_date) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(insertSQL)) {
+                ps.setInt(1, roomNumber);
+                ps.setString(2, name);
+                ps.setString(3, phone);
+                ps.setDate(4, Date.valueOf(checkIn));
+                ps.setDate(5, Date.valueOf(checkOut));
+                ps.executeUpdate();
+            }
 
-            // Clear fields
-            guestNameField.setText("");
-            phoneField.setText("");
-            checkInPicker.getJFormattedTextField().setText("");
-            checkOutPicker.getJFormattedTextField().setText("");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error saving reservation: " + ex.getMessage());
+            // Update room status
+            String updateSQL = "UPDATE rooms SET status = 'Occupied' WHERE room_number = ?";
+            try (PreparedStatement ps = conn.prepareStatement(updateSQL)) {
+                ps.setInt(1, roomNumber);
+                ps.executeUpdate();
+            }
+
+            conn.commit();
+            JOptionPane.showMessageDialog(this, "Reservation successful!");
+            dispose();  // Close form
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error making reservation: " + e.getMessage());
         }
     }
 
-
-    private JDatePickerImpl createDatePicker() {
-        UtilDateModel model = new UtilDateModel();
-        Properties p = new Properties();
-        p.put("text.today", "Today");
-        p.put("text.month", "Month");
-        p.put("text.year", "Year");
-        JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
-        return new JDatePickerImpl(datePanel, new DateLabelFormatter());
-    }
-
-    public static List<Reservation> getReservations() {
-        return reservations;
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new MakeReservationForm().setVisible(true));
     }
 }
