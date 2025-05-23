@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class AdminDashboard extends JFrame {
 
@@ -37,26 +36,16 @@ public class AdminDashboard extends JFrame {
         panel.add(logoutBtn);
 
         // Add listeners
-        manageUsersBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "User management interface coming soon."));
-        addBookingBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Manual booking form coming soon."));
-        addReservationBtn.addActionListener(e -> new MakeReservationForm("Admin").setVisible(true));
-
         viewReservationsBtn.addActionListener(e -> new ViewReservationsWindow(MakeReservationForm.getReservations()).setVisible(true));
         manageRoomsBtn.addActionListener(e -> new ManageRoomsWindow().setVisible(true));
+        manageUsersBtn.addActionListener(e -> new ManageUsersWindow().setVisible(true));
+        addBookingBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Manual booking form coming soon."));
         addReservationBtn.addActionListener(e -> new MakeReservationForm("Admin").setVisible(true));
-
-
         logoutBtn.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Logged out.");
             dispose(); // Close this window
             new LoginWindow().setVisible(true); // Return to login
         });
-
-        addReservationBtn.addActionListener(e -> {
-            MakeReservationForm reservationForm = new MakeReservationForm("Admin");
-            reservationForm.setVisible(true);
-        });
-
 
         add(panel);
     }
