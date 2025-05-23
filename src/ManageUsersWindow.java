@@ -1,7 +1,7 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
+import java.sql.*;
 
 public class ManageUsersWindow extends JFrame {
 
@@ -40,8 +40,7 @@ public class ManageUsersWindow extends JFrame {
                 return;
             }
             String username = (String) tableModel.getValueAt(selectedRow, 0);
-            User user = findUserByUsername(username);
-            openUserForm(user);
+            openUserForm(username); // pass existing username
         });
 
         deleteUserBtn.addActionListener(e -> {
@@ -51,31 +50,34 @@ public class ManageUsersWindow extends JFrame {
                 return;
             }
             String username = (String) tableModel.getValueAt(selectedRow, 0);
-            User user = findUserByUsername(username);
+
             int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete user: " + username + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                UserManager.removeUser(user);
+                deleteUser(username);
                 loadUsers();
             }
         });
     }
 
-    private User findUserByUsername(String username) {
-        return UserManager.getUsers().stream()
-                .filter(u -> u.getUsername().equals(username))
-                .findFirst()
-                .orElse(null);
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection("jdbc:mysql://localhost/hotel_booking", "root", "1234");
     }
 
     private void loadUsers() {
         tableModel.setRowCount(0);
-        for (User u : UserManager.getUsers()) {
-            tableModel.addRow(new Object[]{u.getUsername(), u.getRole()});
+        try (Connection con = getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT username, role FROM users")) {
+            while (rs.next()) {
+                tableModel.addRow(new Object[]{rs.getString("username"), rs.getString("role")});
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading users: " + e.getMessage());
         }
     }
 
-    private void openUserForm(User user) {
-        JDialog dialog = new JDialog(this, user == null ? "Add User" : "Edit User", true);
+    private void openUserForm(String existingUsername) {
+        JDialog dialog = new JDialog(this, existingUsername == null ? "Add User" : "Edit User", true);
         dialog.setSize(300, 250);
         dialog.setLayout(new GridLayout(5, 2, 10, 10));
         dialog.setLocationRelativeTo(this);
@@ -84,11 +86,22 @@ public class ManageUsersWindow extends JFrame {
         JPasswordField passwordField = new JPasswordField();
         JComboBox<String> roleBox = new JComboBox<>(new String[]{"Admin", "User"});
 
-        if (user != null) {
-            usernameField.setText(user.getUsername());
-            passwordField.setText(user.getPassword());
-            roleBox.setSelectedItem(user.getRole());
-            usernameField.setEditable(false); // username not editable on edit
+        if (existingUsername != null) {
+            // Load data from DB
+            try (Connection con = getConnection();
+                 PreparedStatement pst = con.prepareStatement("SELECT * FROM users WHERE username = ?")) {
+                pst.setString(1, existingUsername);
+                ResultSet rs = pst.executeQuery();
+                if (rs.next()) {
+                    usernameField.setText(rs.getString("username"));
+                    passwordField.setText(rs.getString("password"));
+                    roleBox.setSelectedItem(rs.getString("role"));
+                    usernameField.setEditable(false); // lock username
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error loading user: " + ex.getMessage());
+                return;
+            }
         }
 
         dialog.add(new JLabel("Username:"));
@@ -113,24 +126,52 @@ public class ManageUsersWindow extends JFrame {
                 return;
             }
 
-            if (user == null) {
-                // Adding new user - check if username exists
-                if (UserManager.getUsers().stream().anyMatch(u -> u.getUsername().equals(username))) {
-                    JOptionPane.showMessageDialog(dialog, "Username already exists.");
-                    return;
+            try (Connection con = getConnection()) {
+                if (existingUsername == null) {
+                    // Add new user
+                    try (PreparedStatement check = con.prepareStatement("SELECT * FROM users WHERE username = ?")) {
+                        check.setString(1, username);
+                        ResultSet rs = check.executeQuery();
+                        if (rs.next()) {
+                            JOptionPane.showMessageDialog(dialog, "Username already exists.");
+                            return;
+                        }
+                    }
+
+                    PreparedStatement pst = con.prepareStatement("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+                    pst.setString(1, username);
+                    pst.setString(2, password);
+                    pst.setString(3, role);
+                    pst.executeUpdate();
+                    JOptionPane.showMessageDialog(dialog, "User added successfully!");
+                } else {
+                    // Edit user
+                    PreparedStatement pst = con.prepareStatement("UPDATE users SET password = ?, role = ? WHERE username = ?");
+                    pst.setString(1, password);
+                    pst.setString(2, role);
+                    pst.setString(3, existingUsername);
+                    pst.executeUpdate();
+                    JOptionPane.showMessageDialog(dialog, "User updated successfully!");
                 }
-                UserManager.addUser(new User(username, password, role));
-            } else {
-                // Editing existing user
-                user.setPassword(password);
-                user.setRole(role);
+                loadUsers();
+                dialog.dispose();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(dialog, "Database error: " + ex.getMessage());
             }
-            loadUsers();
-            dialog.dispose();
         });
 
         cancelBtn.addActionListener(e -> dialog.dispose());
 
         dialog.setVisible(true);
+    }
+
+    private void deleteUser(String username) {
+        try (Connection con = getConnection();
+             PreparedStatement pst = con.prepareStatement("DELETE FROM users WHERE username = ?")) {
+            pst.setString(1, username);
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Failed to delete user: " + e.getMessage());
+        }
     }
 }

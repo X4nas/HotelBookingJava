@@ -26,6 +26,8 @@ public class AdminDashboard extends JFrame {
         JButton addReservationBtn = new JButton("Add Reservation");
         JButton logoutBtn = new JButton("Logout");
 
+        manageUsersBtn.addActionListener(e -> new ManageUsersWindow().setVisible(true));
+
         // Add buttons to panel
         panel.add(viewReservationsBtn);
         panel.add(manageRoomsBtn);
