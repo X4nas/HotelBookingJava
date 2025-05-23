@@ -9,11 +9,11 @@ public class AdminDashboard extends JFrame {
         this.adminUsername = adminUsername;
 
         setTitle("Admin Dashboard - " + adminUsername);
-        setSize(450, 400);
+        setSize(450, 350);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel(new GridLayout(7, 1, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         JLabel welcomeLabel = new JLabel("Welcome, Admin " + adminUsername + "!");
@@ -23,7 +23,6 @@ public class AdminDashboard extends JFrame {
         JButton viewReservationsBtn = new JButton("View All Reservations");
         JButton manageRoomsBtn = new JButton("Add / Edit / Delete Room Info");
         JButton manageUsersBtn = new JButton("Manage Users");
-        JButton addBookingBtn = new JButton("Add Booking");
         JButton addReservationBtn = new JButton("Add Reservation");
         JButton logoutBtn = new JButton("Logout");
 
@@ -31,7 +30,6 @@ public class AdminDashboard extends JFrame {
         panel.add(viewReservationsBtn);
         panel.add(manageRoomsBtn);
         panel.add(manageUsersBtn);
-        panel.add(addBookingBtn);
         panel.add(addReservationBtn);
         panel.add(logoutBtn);
 
@@ -39,7 +37,6 @@ public class AdminDashboard extends JFrame {
         viewReservationsBtn.addActionListener(e -> new ViewReservationsWindow(MakeReservationForm.getReservations()).setVisible(true));
         manageRoomsBtn.addActionListener(e -> new ManageRoomsWindow().setVisible(true));
         manageUsersBtn.addActionListener(e -> new ManageUsersWindow().setVisible(true));
-        addBookingBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Manual booking form coming soon."));
         addReservationBtn.addActionListener(e -> new MakeReservationForm("Admin").setVisible(true));
         logoutBtn.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Logged out.");
