@@ -28,7 +28,7 @@ public class AdminDashboard extends JFrame {
 
         manageUsersBtn.addActionListener(e -> new ManageUsersWindow().setVisible(true));
 
-        // Add buttons to panel
+        // Adding buttons to panel
         panel.add(viewReservationsBtn);
         panel.add(manageRoomsBtn);
         panel.add(manageUsersBtn);

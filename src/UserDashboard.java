@@ -4,7 +4,7 @@ import java.util.List;  // Import java.util.List here
 
 public class UserDashboard extends JFrame {
 
-    private String userPhone; // Use phone for bookings lookup
+    private String userPhone; // Using phone for bookings lookup
 
     public UserDashboard(String userPhone) {
         this.userPhone = userPhone;
@@ -41,12 +41,7 @@ public class UserDashboard extends JFrame {
             if (bookings == null || bookings.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "No bookings found for phone: " + userPhone);
             } else {
-                // If your ViewBookingsWindow only accepts phone String, just:
                 new ViewBookingsWindow(userPhone).setVisible(true);
-
-                // OR if you want to pass bookings directly,
-                // you must create a constructor that accepts List<Reservation> in ViewBookingsWindow
-                // new ViewBookingsWindow(bookings).setVisible(true);
             }
         });
 
