@@ -36,7 +36,7 @@ public class LoginWindow extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
         loginButton = new JButton("Login");
-        forgotPasswordButton = new JButton("Forgot Password?");
+        forgotPasswordButton = new JButton("Forgot Password? ");
         buttonPanel.add(loginButton);
         buttonPanel.add(forgotPasswordButton);
 
