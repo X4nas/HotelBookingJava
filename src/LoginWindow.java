@@ -50,7 +50,7 @@ public class LoginWindow extends JFrame {
     private void handleLogin() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
-        String role = (String) userTypeCombo.getSelectedItem();  // "Admin " or "User"
+        String role = (String) userTypeCombo.getSelectedItem();  // "Admin" or "User"
 
         String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND role = ?";
 
